@@ -1,0 +1,28 @@
+name: Check Action stock
+
+on:
+  schedule:
+    # elke 5 minuten (UTC-tijd, GitHub kan een paar minuten vertraging geven).
+    # Sneller dan 5 min wordt door GitHub niet betrouwbaar uitgevoerd.
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {}  # laat je ook manueel starten via de GitHub-website
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repo ophalen
+        uses: actions/checkout@v4
+
+      - name: Python installeren
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Dependencies installeren
+        run: pip install requests
+
+      - name: Voorraad checken
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: python check_stock.py
