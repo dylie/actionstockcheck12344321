@@ -20,7 +20,7 @@ PRODUCT_URL = "https://shop.action.com/nl-be/p/8720578232482/japandi-opbergboxsp
 
 # Zet dit op iets uniek + geheim (bv. "jan-actionboxspring-9f3a2").
 # Zelfde naam gebruik je in de ntfy-app om je te abonneren.
-NTFY_TOPIC = os.environ.get("NTFY_TOPIC", "actionstockcheck12344321")
+NTFY_TOPIC = os.environ.get("NTFY_TOPIC", "CHANGE-ME-uniek-topic-naam")
 
 # Tekst die op de pagina staat zolang het product NIET beschikbaar is.
 SOLD_OUT_TEXT = "Tijdelijk uitverkocht"
@@ -46,9 +46,11 @@ def is_in_stock() -> bool:
 def send_notification():
     requests.post(
         f"https://ntfy.sh/{NTFY_TOPIC}",
-        data="De Japandi opbergboxspring (beige) is weer op voorraad bij Action! Snel bestellen.".encode("utf-8"),
+        data="De Japandi opbergboxspring (beige) is weer op voorraad bij Action! Snel bestellen.".encode(
+            "utf-8"
+        ),
         headers={
-            "Title": "Weer op voorraad! 🛏️",
+            "Title": "Weer op voorraad!".encode("utf-8"),
             "Click": PRODUCT_URL,
             "Priority": "urgent",
             "Tags": "bell,tada",
@@ -58,7 +60,6 @@ def send_notification():
 
 
 def main():
-    send_notification()
     try:
         in_stock = is_in_stock()
     except Exception as e:
