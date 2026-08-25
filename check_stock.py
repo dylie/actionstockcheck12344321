@@ -20,7 +20,7 @@ PRODUCT_URL = "https://shop.action.com/nl-be/p/8720578232482/japandi-opbergboxsp
 
 # Zet dit op iets uniek + geheim (bv. "jan-actionboxspring-9f3a2").
 # Zelfde naam gebruik je in de ntfy-app om je te abonneren.
-NTFY_TOPIC = os.environ.get("NTFY_TOPIC", "CHANGE-ME-uniek-topic-naam")
+NTFY_TOPIC = os.environ.get("NTFY_TOPIC", "actionstockcheck12344321")
 
 # Tekst die op de pagina staat zolang het product NIET beschikbaar is.
 SOLD_OUT_TEXT = "Tijdelijk uitverkocht"
