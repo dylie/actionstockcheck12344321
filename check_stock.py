@@ -60,6 +60,7 @@ def send_notification():
 
 
 def main():
+    send_notification()
     try:
         in_stock = is_in_stock()
     except Exception as e:
