@@ -62,41 +62,41 @@ def fetch_rendered_html() -> str:
         # Extra korte wacht, voor het geval de status na de eerste
         # netwerkstilte nog client-side wordt bijgewerkt.
         page.wait_for_timeout(2000)
-        html = page.content()
+        # BELANGRIJK: we lezen hier de zichtbare tekst van de pagina
+        # uit (zoals een bezoeker die ziet), NIET de ruwe HTML-bron.
+        # De ruwe HTML bevat namelijk ook onzichtbare vertaal-JSON
+        # (bv. "stock_level_sold_out":"Tijdelijk uitverkocht") die
+        # altijd aanwezig is, los van de echte voorraadstatus. Door
+        # alleen zichtbare tekst te gebruiken vermijden we valse
+        # matches op die verborgen data.
+        visible_text = page.inner_text("body")
         browser.close()
-        return html
+        return visible_text
 
 
-def debug_print_status(html: str) -> None:
+def debug_print_status(visible_text: str) -> None:
     """Print wat het script zelf ziet, zodat je dit kan vergelijken
     met wat er op je eigen telefoon/browser te zien is."""
-    html_lower = html.lower()
+    text_lower = visible_text.lower()
 
     matched_any = False
     for pattern in NOT_AVAILABLE_PATTERNS:
-        m = re.search(pattern, html_lower)
+        m = re.search(pattern, text_lower)
         if m:
             matched_any = True
             start = max(0, m.start() - 60)
-            end = min(len(html), m.end() + 60)
-            snippet = " ".join(html[start:end].split())
+            end = min(len(visible_text), m.end() + 60)
+            snippet = " ".join(visible_text[start:end].split())
             print(f"[DEBUG] Match voor '{pattern}': ...{snippet}...")
 
     if not matched_any:
-        print("[DEBUG] Geen van de NOT_AVAILABLE_PATTERNS gevonden op de pagina.")
-
-    idx = html_lower.find("beschikbaar")
-    if idx != -1:
-        start = max(0, idx - 40)
-        end = min(len(html), idx + 120)
-        snippet = " ".join(html[start:end].split())
-        print(f"[DEBUG] Context rond 'beschikbaar': ...{snippet}...")
+        print("[DEBUG] Geen van de NOT_AVAILABLE_PATTERNS gevonden in de zichtbare tekst.")
 
 
-def is_in_stock(html: str) -> bool:
-    html_lower = html.lower()
+def is_in_stock(visible_text: str) -> bool:
+    text_lower = visible_text.lower()
     for pattern in NOT_AVAILABLE_PATTERNS:
-        if re.search(pattern, html_lower):
+        if re.search(pattern, text_lower):
             return False
     return True
 
@@ -119,9 +119,9 @@ def send_notification():
 
 def main():
     try:
-        html = fetch_rendered_html()
-        debug_print_status(html)
-        in_stock = is_in_stock(html)
+        visible_text = fetch_rendered_html()
+        debug_print_status(visible_text)
+        in_stock = is_in_stock(visible_text)
     except Exception as e:
         print(f"Fout bij checken van de pagina: {e}", file=sys.stderr)
         sys.exit(1)
